@@ -3,7 +3,16 @@ use Config;
 use Alien::CMake;
 my $build = Alien::Base::ModuleBuild->new(
     module_name => 'Alien::libpid',
+    alien_name => 'libpid',
+    dist_author => 'Ahmad Fatoum <athreef@cpan.org>',
     license => 'perl',
+
+    alien_repository => {
+        protocol => 'http',
+        host     => 'github.com',
+        location => '/a3f/libpid/archive',
+        exact_filename => 'master.tar.gz',
+    },
     alien_bin_requires => {
         'Alien::CMake' => '0.07',
     },
@@ -14,9 +23,13 @@ my $build = Alien::Base::ModuleBuild->new(
     },
     build_requires => {
         'Alien::CMake' => '0.07',
+        # TODO: fallback to HTTP download when IO::Socket::SSL doesn't exist
+        'IO::Socket::SSL' => 0
+    },
+    recommends => {
+        'IO::Socket::SSL' => 0,
     },
     test_requires => {
-        'Test::More'         => 0,
         'ExtUtils::CBuilder' => 0,
         'Test::Alien'        => '0.05',
         'Test2'              => '1.302015',
@@ -26,35 +39,22 @@ my $build = Alien::Base::ModuleBuild->new(
         'perl' => '5.008001',
         'Alien::Base' => '0.030',
     },
-    dist_author => 'Ahmad Fatoum <athreef@cpan.org>',
-    alien_name => 'libpid',
-    alien_repository => {
-        protocol => 'http',
-        host     => 'github.com',
-        location => '/a3f/libpid/archive',
-        exact_filename => 'master.tar.gz',
-    },
-    alien_inline_auto_include => [ 'pid.h' ],
+    alien_inline_auto_include => [ 'libpid.h' ],
     alien_stage_install => 1,
 
     alien_build_commands => [
-            'pwd',
             Alien::CMake->config('prefix')
-              . '/bin/cmake -DCMAKE_INSTALL_PREFIX:PATH=%s CMakeLists.txt',
-            'make',
+              . "/bin/cmake -DCMAKE_C_COMPILER_INIT=$Config{cc}"
+              . ' -DCMAKE_INSTALL_PREFIX:PATH=%s CMakeLists.txt',
+            $Config{make},
     ],
-    alien_install_commands => ['make install'],
-    alien_repository => {
-        protocol => 'http',
-        host     => 'github.com',
-        location => '/a3f/libpid/archive',
-        exact_filename => "master.tar.gz",
-    },
+    alien_install_commands => ["$Config{make} install"],
+
     extra_compiler_flags => Alien::CMake->config('cflags'),
     extra_linker_flags   => Alien::CMake->config('libs'),
 );
 
 $build->create_build_script;
-#$build->dispatch('distmeta');
+$build->dispatch('distmeta');
 #$build->dispatch('manifest');
 #$build->dispatch('build');
