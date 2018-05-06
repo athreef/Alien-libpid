@@ -7,8 +7,6 @@ package Alien::libpid;
 
 use parent 'Alien::Base';
 
-our $VERSION = '0.03';
-
 =pod
 
 =encoding utf8
