@@ -8,7 +8,7 @@ Alien::libpid - Perl distribution for libpid
 
 =head1 VERSION
 
-version 0.032
+version 0.033
 
 =head1 INSTALL
 
